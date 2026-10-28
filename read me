@@ -1,0 +1,443 @@
+4
+#include <iostream>
+using namespace std;
+#define SIZE 5
+
+struct Queue {
+    int arr[SIZE];
+    int front, rear;
+};
+
+void enqueue(Queue &q, int x) {
+    if ((q.rear + 1) % SIZE == q.front) {
+        cout << "Queue Full\n";
+        return;
+    }
+
+    if (q.front == -1)
+        q.front = 0;
+
+    q.rear = (q.rear + 1) % SIZE;
+    q.arr[q.rear] = x;
+}
+
+void dequeue(Queue &q) {
+    if (q.front == -1) {
+        cout << "Queue Empty\n";
+        return;
+    }
+
+    cout << "Deleted: " << q.arr[q.front] << endl;
+
+
+    if (q.front == q.rear)
+        q.front = q.rear = -1;
+    else
+        q.front = (q.front + 1) % SIZE;
+}
+
+void display(Queue q) {
+    if (q.front == -1) {
+        cout << "Queue Empty\n";
+        return;
+    }
+
+    int i = q.front;
+    while (true) {
+        cout << q.arr[i] << " ";
+        if (i == q.rear)
+            break;
+        i = (i + 1) % SIZE;
+    }
+    cout << endl;
+}
+
+int main() {
+    Queue q;
+    q.front = q.rear = -1;
+    int ch, x;
+
+    do {
+        cout << "\n1.Enqueue 2.Dequeue 3.Display 4.Exit\n";
+        cin >> ch;
+
+        switch (ch) {
+            case 1:
+                cout << "Enter value: ";
+                cin >> x;
+                enqueue(q, x);
+                break;
+            case 2:
+                dequeue(q);
+                break;
+            case 3:
+                display(q);
+                break;
+        }
+    } while (ch != 4);
+
+    return 0;
+}
+
+
+
+
+
+
+
+//heap sort 6 assignment
+
+#include<iostream>
+#include<bits/stdc++.h>
+using namespace std;
+
+void heapify(int arr[],int n,int i){
+    int largest = i;
+    int left = 2*i+1;
+    int right = 2*i+2;
+
+    if(left<n && arr[left]>arr[largest]){
+      largest = left;
+    }
+    if(right<n && arr[right]>arr[largest]){
+        largest =right;
+    }
+    if(largest!=i){
+        swap(arr[i],arr[largest]);
+        heapify(arr,n,largest);
+    }
+}
+
+void sort(int arr[],int n){
+  for(int i=n/2  - 1;i>=0;i--){
+      heapify(arr,n,i);
+  }
+
+  for(int i=n-1;i>=0;i--){
+    swap(arr[0],arr[i]);
+    heapify(arr,i,0);
+  }
+}
+
+int main(){
+    int n =6;
+    int arr[n]={4,5,6,8,4,0};
+    cout<<"This is unsorted array : ";
+    for(int j=0;j<n;j++){
+        cout<<arr[j]<<" ";
+    }
+    cout<<endl;
+    sort(arr,n);
+    cout<<"The sorted array in ascending order is : ";
+    for(int p=0;p<n;p++){
+        cout<<arr[p]<<" ";
+    }
+    cout<<endl;
+}
+
+
+
+
+
+
+
+
+//merge sort delivery time 
+
+#include <iostream>
+
+using namespace std;
+
+// Function to merge two sorted subarrays into a single sorted array
+void merge(int arr[], int left, int mid, int right) {
+    int n1 = mid - left + 1; // Size of left subarray
+    int n2 = right - mid;    // Size of right subarray
+
+    // Create temporary arrays
+    int* leftArr = new int[n1];
+    int* rightArr = new int[n2];
+
+    // Copy data to temporary arrays
+    for (int i = 0; i < n1; i++)
+        leftArr[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        rightArr[j] = arr[mid + 1 + j];
+
+    // Merge the temporary arrays back into arr[left..right]
+    int i = 0;     // Initial index of first subarray
+    int j = 0;     // Initial index of second subarray
+    int k = left;  // Initial index of merged subarray
+
+    while (i < n1 && j < n2) {
+        if (leftArr[i] <= rightArr[j]) {
+            arr[k] = leftArr[i];
+            i++;
+        } else {
+            arr[k] = rightArr[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy the remaining elements of leftArr[], if any
+    while (i < n1) {
+        arr[k] = leftArr[i];
+        i++;
+        k++;
+    }
+
+    // Copy the remaining elements of rightArr[], if any
+    while (j < n2) {
+        arr[k] = rightArr[j];
+        j++;
+        k++;
+    }
+
+    // Free dynamically allocated memory to prevent memory leaks
+    delete[] leftArr;
+    delete[] rightArr;
+}
+
+// Main function that sorts arr[left..right] using merge()
+void mergeSort(int arr[], int left, int right) {
+    if (left >= right) {
+        return; // Base case: 1 or 0 elements
+    }
+
+    int mid = left + (right - left) / 2; // Find the middle point
+
+    // Recursively sort first and second halves
+    mergeSort(arr, left, mid);
+    mergeSort(arr, mid + 1, right);
+
+    // Merge the sorted halves
+    merge(arr, left, mid, right);
+}
+
+int main() {
+    // Delivery times of online orders in minutes
+    int deliveryTimes[] = {45, 12, 30, 8, 55, 20};
+    int n = sizeof(deliveryTimes) / sizeof(deliveryTimes[0]);
+
+    cout << "Unsorted Online Order Delivery Times (minutes): ";
+    for (int i = 0; i < n; i++) {
+        cout << deliveryTimes[i] << " ";
+    }
+    cout << endl;
+
+    // Sort the delivery times
+    mergeSort(deliveryTimes, 0, n - 1);
+
+    cout << "Prioritized Delivery Times (Quickest First): ";
+    for (int i = 0; i < n; i++) {
+        cout << deliveryTimes[i] << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+
+
+
+
+
+assignment   1
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// 1. Plain struct for holding data (no functions inside)
+struct Student {
+    int id;
+    string name;
+    float cgpa;
+};
+
+// 2. Display function (defined separately)
+void displayStudents(const vector<Student>& students) {
+    cout << "\nID\tName\tCGPA\n---------------------\n";
+    for (const auto& s : students) {
+        cout << s.id << "\t" << s.name << "\t" << s.cgpa << "\n";
+    }
+}
+
+// 3. Linear Search function (defined separately)
+int linearSearch(const vector<Student>& students, int id) {
+    for (size_t i = 0; i < students.size(); i++) {
+        if (students[i].id == id) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// 4. Binary Search function (defined separately)
+int binarySearch(const vector<Student>& students, int id) {
+    int low = 0, high = students.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (students[mid].id == id) return mid;
+        if (students[mid].id < id) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
+}
+
+// 5. Bubble Sort by Name (defined separately)
+void bubbleSortByName(vector<Student>& students) {
+    for (size_t i = 0; i < students.size() - 1; i++) {
+        for (size_t j = 0; j < students.size() - i - 1; j++) {
+            if (students[j].name > students[j + 1].name) {
+                swap(students[j], students[j + 1]);
+            }
+        }
+    }
+	
+}
+
+// 6. Insertion Sort by ID for Binary Search (defined separately)
+void sortByID(vector<Student>& students) {
+    for (size_t i = 1; i < students.size(); i++) {
+        Student key = students[i];
+        int j = i - 1;
+        while (j >= 0 && students[j].id > key.id) {
+            students[j + 1] = students[j];
+            j--;
+        }
+        students[j + 1] = key;
+    }
+}
+
+int main() {
+    // We use a vector directly instead of a database object/struct
+    vector<Student> students;
+
+    // Adding students directly using push_back
+    students.push_back({104, "Aman", 8.5});
+    students.push_back({101, "Shubham", 9.1});
+    students.push_back({103, "Rahul", 7.8});
+
+    displayStudents(students);
+
+    // Calling search function directly
+    cout << "\nSearching for ID 103 using Linear Search...\n";
+    int index = linearSearch(students, 103);
+    cout << "Found at index: " << index << "\n";
+
+    // Calling sort functions directly
+    cout << "\nSorting by Name (Bubble Sort)...\n";
+    bubbleSortByName(students);
+    displayStudents(students);
+
+    cout << "\nSorting by ID for Binary Search...\n";
+    sortByID(students);
+    cout << "Searching for ID 103 using Binary Search...\n";
+    cout << "Found at index: " << binarySearch(students, 103) << "\n";
+
+    return 0;
+}
+
+
+
+
+//using hash tabel
+#include<iostream>
+#include<bits/stdc++.h>
+using namespace std;
+# define n 10
+
+struct profile{
+  string phone,name;int status=0;
+};
+
+profile arr[n];
+//this is hash functio
+int hashfn(string phone){
+  int sum=0;
+  for(char c : phone){
+    sum += c-'0';
+  }
+  return sum % n;
+}
+
+  void hashinsert(string name, string phone){
+   // cout<<"enter name and phone";
+    int k=hashfn(phone);
+
+    for(int i=0;i<n;i++){
+      int j=(k+i)%10;
+      if(arr[j].status==1 && arr[j].phone== phone){
+        cout<<"index is already occupied";
+        return;
+      }
+      else if(arr[j].status !=1){
+        arr[j].phone=phone;
+        arr[j].name = name;
+        arr[j].status=1;
+        cout<<"inserted successfully"<<endl;
+        return ;
+      }
+    }
+  }
+    void hashsearch(string phone){
+      int k=hashfn(phone);
+      for(int i=0;i<n;i++){
+        int j=(k+i)%n;
+        if(arr[j].status ==0)break;
+        if(arr[j].status == 1 && arr[j].phone==phone){
+          cout<<"this is the searched onr "<<arr[j].name<<" "<<arr[j].phone ;
+        }
+      }
+    }
+
+  void hashdelete(string phone){
+      int k= hashfn(phone);
+      for(int i=0;i<n;i++){
+        int j=(k+i)%n;
+        if(arr[j].status ==0)break;
+        if(arr[j].status ==1){
+          arr[j].status = 2;
+          cout<<" deleted ";
+        }
+      }
+  }
+
+  void display() {
+    for (int i = 0; i < n; i++)
+        if (arr[i].status == 1)
+            cout << arr[i].name << " " << arr[i].phone << endl;
+            cout<<endl;
+}
+  
+  int main(){
+    int ch;string name,phone;
+  do 
+  {
+    cout<<" 1.insert  2.search 3.display 4.delete 5.exit";
+    cin>>ch;
+
+    switch(ch){
+      case 1:
+      cin>>name>>phone;
+      hashinsert(name,phone);
+        break;
+       case 2:
+      cin>>name;
+      hashsearch(name);
+       break;
+       case 3:
+      display();
+      break;
+       
+       case 4:
+      cin>>name;
+      hashdelete(name);
+      break;
+
+    }
+  }  while (ch!=5);
+  }
+
