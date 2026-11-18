@@ -1,4 +1,32 @@
 
+
+
+
+
+
+
+
+
+g++ exp1.cpp -o exp1.exe -Iinclude -Llib -lfreeglut -lopengl32 -lglu32 -lgdi32
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <GL/glut.h>
 
 void display()
