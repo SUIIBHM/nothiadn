@@ -644,3 +644,545 @@ int main(int argc, char **argv)
     glutMainLoop();
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <GL/glut.h>
+
+class Shape {
+public:
+    virtual void draw() = 0;
+};
+
+class Ball : public Shape {
+public:
+    float x = 100, y = 100;
+    float speed = 3;
+
+    void draw() override {
+        glColor3f(1, 0, 0);
+
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < 360; i++) {
+            float angle = i * 3.14 / 180;
+            glVertex2f(x + 20*cos(angle),
+                       y + 20*sin(angle));
+        }
+        glEnd();
+    }
+
+    void move() {
+        x += speed;
+
+        if (x > 580 || x < 20)
+            speed = -speed;
+    }
+};
+
+Ball b;
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    Shape *s = &b;
+    s->draw();
+
+    glFlush();
+}
+
+void update(int value) {
+    b.move();
+    glutPostRedisplay();
+    glutTimerFunc(16, update, 0);
+}
+
+void init() {
+    glClearColor(1, 1, 1, 1);
+    gluOrtho2D(0, 600, 0, 600);
+}
+
+int main(int argc, char **argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Bouncing Ball");
+
+    init();
+    glutDisplayFunc(display);
+
+    glutTimerFunc(0, update, 0);
+
+    glutMainLoop();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <GL/glut.h>
+#include <iostream>
+using namespace std;
+
+int xmin = 150, ymin = 150;
+int xmax = 450, ymax = 450;
+
+int getCode(float x, float y) {
+    int code = 0;
+
+    if (x < xmin) code |= 1;
+    if (x > xmax) code |= 2;
+    if (y < ymin) code |= 4;
+    if (y > ymax) code |= 8;
+
+    return code;
+}
+
+void clipLine(float x1, float y1,
+              float x2, float y2) {
+
+    int c1 = getCode(x1, y1);
+    int c2 = getCode(x2, y2);
+    bool accept = false;
+
+    while (true) {
+        if (!(c1 | c2)) {
+            accept = true;
+            break;
+        }
+        else if (c1 & c2) {
+            break;
+        }
+        else {
+            int c = c1 ? c1 : c2;
+            float x, y;
+
+            if (c & 8) {
+                x = x1 + (x2-x1)*(ymax-y1)/(y2-y1);
+                y = ymax;
+            }
+            else if (c & 4) {
+                x = x1 + (x2-x1)*(ymin-y1)/(y2-y1);
+                y = ymin;
+            }
+            else if (c & 2) {
+                y = y1 + (y2-y1)*(xmax-x1)/(x2-x1);
+                x = xmax;
+            }
+            else {
+                y = y1 + (y2-y1)*(xmin-x1)/(x2-x1);
+                x = xmin;
+            }
+
+            if (c == c1) {
+                x1 = x;
+                y1 = y;
+                c1 = getCode(x1, y1);
+            }
+            else {
+                x2 = x;
+                y2 = y;
+                c2 = getCode(x2, y2);
+            }
+        }
+    }
+
+    if (accept) {
+        glColor3f(1, 0, 0);
+        glBegin(GL_LINES);
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y2);
+        glEnd();
+    }
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw clipping window
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(xmin, ymin);
+    glVertex2i(xmax, ymin);
+    glVertex2i(xmax, ymax);
+    glVertex2i(xmin, ymax);
+    glEnd();
+
+    // Original line
+    glColor3f(0, 0, 1);
+    glBegin(GL_LINES);
+    glVertex2i(50, 100);
+    glVertex2i(550, 500);
+    glEnd();
+
+    // Clipped line
+    clipLine(50, 100, 550, 500);
+
+    glFlush();
+}
+
+void init() {
+    glClearColor(1, 1, 1, 1);
+    gluOrtho2D(0, 600, 0, 600);
+}
+
+int main(int argc, char **argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Cohen Sutherland Clipping");
+
+    init();
+    glutDisplayFunc(display);
+
+    glutMainLoop();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <GL/glut.h>
+
+void setPixel(int x, int y) {
+    glColor3ub(255, 0, 0);
+    glBegin(GL_POINTS);
+    glVertex2i(x, y);
+    glEnd();
+    glFlush();
+}
+
+void getPixel(int x, int y, int *c) {
+    glReadPixels(x, y, 1, 1,
+                 GL_RGB, GL_UNSIGNED_BYTE, c);
+}
+
+void boundaryFill(int x, int y) {
+    int c[3];
+    getPixel(x, y, c);
+
+    // Stop at black boundary or red fill
+    if ((c[0] != 0 || c[1] != 0 || c[2] != 0) &&
+        (c[0] != 255 || c[1] != 0 || c[2] != 0)) {
+
+        setPixel(x, y);
+
+        boundaryFill(x + 1, y);
+        boundaryFill(x - 1, y);
+        boundaryFill(x, y + 1);
+        boundaryFill(x, y - 1);
+    }
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw rectangle boundary in black
+    glColor3ub(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(200, 200);
+    glVertex2i(400, 200);
+    glVertex2i(400, 400);
+    glVertex2i(200, 400);
+    glEnd();
+
+    glFlush();
+}
+
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        boundaryFill(x, 600 - y);
+    }
+}
+
+void init() {
+    glClearColor(1, 1, 1, 1);
+    gluOrtho2D(0, 600, 0, 600);
+}
+
+int main(int argc, char **argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Boundary Fill");
+
+    init();
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);
+
+    glutMainLoop();
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <GL/glut.h>
+
+int color[3] = {0, 0, 0};
+
+void setPixel(int x, int y, int r, int g, int b) {
+    glColor3ub(r, g, b);
+    glBegin(GL_POINTS);
+    glVertex2i(x, y);
+    glEnd();
+    glFlush();
+}
+
+void getPixel(int x, int y, int *c) {
+    glReadPixels(x, y, 1, 1,
+                 GL_RGB, GL_UNSIGNED_BYTE, c);
+}
+
+void floodFill(int x, int y) {
+    int c[3];
+    getPixel(x, y, c);
+
+    // Stop if pixel is not black
+    if (c[0] == 0 && c[1] == 0 && c[2] == 0) {
+        setPixel(x, y, 255, 0, 0);
+
+        floodFill(x + 1, y);
+        floodFill(x - 1, y);
+        floodFill(x, y + 1);
+        floodFill(x, y - 1);
+    }
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw rectangle boundary
+    glColor3ub(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(200, 200);
+    glVertex2i(400, 200);
+    glVertex2i(400, 400);
+    glVertex2i(200, 400);
+    glEnd();
+
+    glFlush();
+}
+
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        floodFill(x, 600 - y);
+    }
+}
+
+void init() {
+    glClearColor(1, 1, 1, 1);
+    gluOrtho2D(0, 600, 0, 600);
+}
+
+int main(int argc, char **argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Flood Fill");
+
+    init();
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);
+
+    glutMainLoop();
+    return 0;
+}
